@@ -1,7 +1,7 @@
 import telebot
 import requests
 
-BOT_TOKEN = "8620748653:AAEQGJIEArQhgmAuB3vxr2plvzXmc4gbRx0"
+BOT_TOKEN = "8620748653:AAEQGJIEArQhgmAuB3vxr2plvzxmc4gbRx0"
 CHANNEL_USERNAME = "@MySuperGames"
 SHORTENER_API_KEY = "2a3196651631ce423da1e16ee8c3237cda64f70f"
 
