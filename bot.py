@@ -1,16 +1,22 @@
+
+import asyncio
+
+# هذا الكود يجب أن يكون في السطر الأول تماماً قبل أي استدعاء آخر
+try:
+    _loop = asyncio.get_event_loop()
+except RuntimeError:
+    _loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(_loop)
+
+# الآن استدعي باقي المكتبات بأمان تام
 import telebot
 from pyrogram import Client, filters
 import requests
 import threading
 import re
-import asyncio  # <--- ضفنا هاد المكتبة تاع بايثون
-
-# إصلاح مشكلة الـ Event Loop في سيرفر Render
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
 
 # ================= الإعدادات =================
-# 1. ضع كود الجلسة (Session String) الذي استخرجته من Termux بين علامتي التنصيص
+# ضع إعدادات البوت والجلسة هنا...
 SESSION_STRING = "BAHMGcYAmc-Ocf61iEM_tCPhRSUFecqh2BWPEvI3TmbGUtqu0lCm43zoIfMRCz0_gSbWRM8y016ktNYDQfq4ow00C-gim58P1D5Qwhw7jXzY6yr4UrY062QUR8NDEJfdpQuSpBL9SWC7PW_95_N71eqDnHji0ZtzRxNy0mxmck1xSu-qpcQwntffRo0TrWT8RphYc_ha1YMAlxG1q-edL7q7Rl2iBMpz5fHxNZ_xVMBApTBhbbA0whP2FeWlurLVQwMRVbVsYYRiPpHk69R5jEElVkYt-4NMczwynJEu6rfeD-MJtfTX79Nh2aKRbHqIYLeGnvuKhTU3W-zNCop1_JQrF8_YkAAAAAF8D3v3AA" 
 
 # 2. الآي دي الخاص بقناة قاعدة البيانات الخاصة (يجب أن يبدأ بـ -100)
