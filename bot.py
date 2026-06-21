@@ -18,7 +18,7 @@ BOT_TOKEN = "8620748653:AAEQGJIEArQhgmAuB3vxr2plvzxmc4gbRx0"
 GPLINKS_API_KEY = "2a3196651631ce423da1e16ee8c3237cda64f70f"
 
 # القنوات التي نراقبها (بدون @)
-SOURCE_CHANNELS = ["happymod_apks", "traidmod"]
+SOURCE_CHANNELS = ["happymod_apks", "traidmod", "Ezzhacker11200"]
 # قناتك العامة للاشتراك الإجباري
 PUBLIC_CHANNEL = "@MySuperGames"
 # ===============================================
