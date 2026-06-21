@@ -57,4 +57,8 @@ def start(message):
             return
         
         try:
-  
+            # إذا كان مشتركاً، يرسل له البوت الملف/الرسالة من القناة الخاصة
+            bot.copy_message(chat_id=message.chat.id, from_chat_id=DUMP_CHANNEL_ID, message_id=int(msg_id))
+            bot.reply_to(message, "✅ تم التحميل بنجاح! شكراً لاشتراكك.")
+        except Exception as e:
+            bot.reply_to(message, "❌ عذراً، اللعبة غير متوفرة حالياً.")
