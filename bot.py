@@ -3,6 +3,11 @@ from pyrogram import Client, filters
 import requests
 import threading
 import re
+import asyncio  # <--- ضفنا هاد المكتبة تاع بايثون
+
+# إصلاح مشكلة الـ Event Loop في سيرفر Render
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 
 # ================= الإعدادات =================
 # 1. ضع كود الجلسة (Session String) الذي استخرجته من Termux بين علامتي التنصيص
