@@ -1,75 +1,48 @@
-
-import asyncio
-
-# هذا الكود يجب أن يكون في السطر الأول تماماً قبل أي استدعاء آخر
-try:
-    _loop = asyncio.get_event_loop()
-except RuntimeError:
-    _loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(_loop)
-
-# الآن استدعي باقي المكتبات بأمان تام
 import telebot
-from pyrogram import Client, filters
-import requests
+from telebot import types
 import threading
-import re
+from http.server import SimpleHTTPRequestHandler, HTTPServer
 
-# ================= الإعدادات =================
-# ضع إعدادات البوت والجلسة هنا...
-SESSION_STRING = "BAHMGcYAmc-Ocf61iEM_tCPhRSUFecqh2BWPEvI3TmbGUtqu0lCm43zoIfMRCz0_gSbWRM8y016ktNYDQfq4ow00C-gim58P1D5Qwhw7jXzY6yr4UrY062QUR8NDEJfdpQuSpBL9SWC7PW_95_N71eqDnHji0ZtzRxNy0mxmck1xSu-qpcQwntffRo0TrWT8RphYc_ha1YMAlxG1q-edL7q7Rl2iBMpz5fHxNZ_xVMBApTBhbbA0whP2FeWlurLVQwMRVbVsYYRiPpHk69R5jEElVkYt-4NMczwynJEu6rfeD-MJtfTX79Nh2aKRbHqIYLeGnvuKhTU3W-zNCop1_JQrF8_YkAAAAAF8D3v3AA" 
+# 1. حط التوكن والـ ID تاعك هنا كالعادة
+TOKEN = '8901169943:AAHzlum_EL2qpe9pXo8SRlE1eRgOQpEnS04'
+ADMIN_ID = 7315453981  # بدلو بالـ ID تاعك الحقيقي
+bot = telebot.TeleBot(TOKEN)
 
-# 2. الآي دي الخاص بقناة قاعدة البيانات الخاصة (يجب أن يبدأ بـ -100)
-# (للحصول عليه، قم بتحويل رسالة من قناتك الخاصة إلى بوت @RawDataBot)
-DUMP_CHANNEL_ID = -1004315939877 
+# --- [ خدعة إبقاء البوت حياً 24 ساعة ] ---
+def run_dummy_server():
+    # يصنع سيرفر ويب وهمي داخلي على المنفذ 8080 لإقناع Render أنه موقع
+    server = HTTPServer(('0.0.0.0', 8080), SimpleHTTPRequestHandler)
+    server.serve_forever()
 
-API_ID = 30153158
-API_HASH = "e523e18a3750e020b21e40e76ece826c"
-BOT_TOKEN = "8620748653:AAEQGJIEArQhgmAuB3vxr2plvzxmc4gbRx0"
-GPLINKS_API_KEY = "2a3196651631ce423da1e16ee8c3237cda64f70f"
+# تشغيل السيرفر الوهمي في خلفية البوت
+threading.Thread(target=run_dummy_server, daemon=True).start()
+# ----------------------------------------
 
-# القنوات التي نراقبها (بدون @)
-SOURCE_CHANNELS = ["happymod_apks", "traidmod", "Ezzhacker11200"]
-# قناتك العامة للاشتراك الإجباري
-PUBLIC_CHANNEL = "@MySuperGames"
-# ===============================================
+DATA_BUTTONS = [{"text": "🌐 موقع جوجل (افتراضى)", "url": "https://www.google.com"}]
+admin_steps = {"waiting_for_name": False, "waiting_for_url": False, "temp_name": ""}
 
-bot = telebot.TeleBot(BOT_TOKEN)
-app = Client("my_userbot", session_string=SESSION_STRING, in_memory=True)
-
-# دالة اختصار الروابط
-def shorten_url(url):
-    try:
-        api_url = f"https://gplinks.com/api?api={GPLINKS_API_KEY}&url={url}"
-        response = requests.get(api_url).json()
-        return response.get('shortenedUrl', url)
-    except:
-        return url
-
-# دالة التحقق من الاشتراك
-def is_subscribed(user_id):
-    try:
-        member = bot.get_chat_member(PUBLIC_CHANNEL, user_id)
-        return member.status in ['member', 'administrator', 'creator']
-    except:
-        return False
-
-# ----------------- 1. قسم البوت (خدمة العملاء) -----------------
 @bot.message_handler(commands=['start'])
-def start(message):
-    text = message.text.split()
-    if len(text) > 1:
-        # استخراج كود اللعبة من الرابط (مثلاً game_123)
-        msg_id = text[1].replace("game_", "") 
-        
-        # التحقق من الاشتراك الإجباري
-        if not is_subscribed(message.chat.id):
-            bot.reply_to(message, f"⚠️ يجب عليك الاشتراك في القناة أولاً للتحميل:\n{PUBLIC_CHANNEL}\n\nبعد الاشتراك، ارجع للقناة واضغط على الرابط مجدداً.")
-            return
-        
-        try:
-            # إذا كان مشتركاً، يرسل له البوت الملف/الرسالة من القناة الخاصة
-            bot.copy_message(chat_id=message.chat.id, from_chat_id=DUMP_CHANNEL_ID, message_id=int(msg_id))
-            bot.reply_to(message, "✅ تم التحميل بنجاح! شكراً لاشتراكك.")
-        except Exception as e:
-            bot.reply_to(message, "❌ عذراً، اللعبة غير متوفرة حالياً.")
+def start_user(message):
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    for item in DATA_BUTTONS:
+        btn = types.InlineKeyboardButton(text=item["text"], url=item["url"])
+        markup.add(btn)
+    bot.send_message(message.chat.id, "🎯 مرحباً بك! اختر واش حاب تليشاريجي تحت:", reply_markup=markup)
+
+@bot.message_handler(commands=['admin'])
+def admin_panel(message):
+    if message.chat.id == ADMIN_ID:
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        btn_add = types.InlineKeyboardButton("➕ إضافة زر ورابط جديد", callback_data="add_btn")
+        markup.add(btn_add)
+        bot.send_message(message.chat.id, "⚙️ لوحة التحكم بالأزرار:", reply_markup=markup)
+    else:
+        bot.send_message(message.chat.id, "❌ خطأ: هذا الأمر للأدمن فقط!")
+
+@bot.callback_query_handler(func=lambda call: True)
+def admin_callbacks(call):
+    if call.message.chat.id == ADMIN_ID and call.data == "add_btn":
+        admin_steps["waiting_for_name"] = True
+        bot.send_message(call.message.chat.id, "📝 الخطوة 1: ابعثلي اسم الزر:")
+
+@bot.message_handler(func=lambda message: message.chat.id == ADMIN_ID and (admin_steps["wa
